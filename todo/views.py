@@ -25,17 +25,35 @@ def addTodo(request):
                 description=description,
                 is_completed=is_completed,
             )
-    return redirect(reverse("todos"))
+    return redirect("todos")
 
 def toggle_todo_complete(request, pk):
     if request.method == "POST":
         todo = get_object_or_404(Task, pk=pk)
         todo.is_completed = not todo.is_completed
         todo.save()
-    return redirect(reverse("todos"))
+    return redirect("todos")
 
 def delete_todo(request, pk):
     if request.method == "POST":
         todo = get_object_or_404(Task, pk=pk)
         todo.delete()
-    return redirect(reverse("todos"))
+    return redirect("todos")
+
+def edit_todo(request, pk):
+    todo = get_object_or_404(Task, pk=pk)
+
+    if request.method == "POST":
+        task = request.POST.get("task")
+        description = request.POST.get("description", "")
+        is_completed = bool(request.POST.get("is_completed"))
+
+        if task:
+            todo.task = task
+            todo.description = description
+            todo.is_completed = is_completed
+            todo.save()
+            return redirect("todos")
+
+    context = {"todo": todo}
+    return render(request, "todo_edit.html", context)
