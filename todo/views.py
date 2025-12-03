@@ -1,5 +1,6 @@
 from django.shortcuts import HttpResponse, redirect, get_object_or_404, render
 from .models import Task  # adjust import if your model is named differently
+from django.urls import reverse
 
 def todos(request):
     # tasks = Task.objects.filter(is_completed=False)
@@ -24,4 +25,17 @@ def addTodo(request):
                 description=description,
                 is_completed=is_completed,
             )
-    return redirect("todos")
+    return redirect(reverse("todos"))
+
+def toggle_todo_complete(request, pk):
+    if request.method == "POST":
+        todo = get_object_or_404(Task, pk=pk)
+        todo.is_completed = not todo.is_completed
+        todo.save()
+    return redirect(reverse("todos"))
+
+def delete_todo(request, pk):
+    if request.method == "POST":
+        todo = get_object_or_404(Task, pk=pk)
+        todo.delete()
+    return redirect(reverse("todos"))
