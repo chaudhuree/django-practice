@@ -1,12 +1,108 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>{{ task.title }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>{{ task.task }} - Todo Details</title>
 </head>
-<body>
-    <h1>{{ task.title }}</h1>
-    <p>{{ task.description }}</p>
-    <a href="{% url 'todos' %}">Back to list</a>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex items-center justify-center px-4">
+        <div class="max-w-2xl w-full bg-white shadow-md rounded-xl p-8">
+            <div class="flex items-start justify-between mb-6">
+                <div>
+                    <p class="text-sm font-medium text-blue-600 uppercase tracking-wide mb-1">
+                        Todo Details
+                    </p>
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+                        {{ task.task }}
+                    </h1>
+                </div>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                             {% if task.is_completed %}
+                                bg-green-100 text-green-700
+                             {% else %}
+                                bg-yellow-100 text-yellow-700
+                             {% endif %}">
+                    {% if task.is_completed %}Completed{% else %}Pending{% endif %}
+                </span>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4 mt-4 space-y-4">
+                <div>
+                    <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                        Description
+                    </h2>
+                    <p class="mt-1 text-gray-800">
+                        {% if task.description %}
+                            {{ task.description }}
+                        {% else %}
+                            <span class="text-gray-400 italic">No description provided.</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                {% if task.updated_at or task.created_at %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-500">
+                    {% if task.created_at %}
+                    <div>
+                        <span class="font-medium text-gray-600">Created:</span>
+                        <span class="ml-1">{{ task.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% endif %}
+                    {% if task.updated_at %}
+                    <div>
+                        <span class="font-medium text-gray-600">Last updated:</span>
+                        <span class="ml-1">{{ task.updated_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mt-8 flex flex-wrap items-center justify-between gap-3">
+                <a href="{% url 'todos' %}"
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium
+                          rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50">
+                    ← Back to Todos
+                </a>
+
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'edit_todo' task.id %}"
+                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium
+                              rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none
+                              focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Edit
+                    </a>
+
+                    <form action="{% url 'toggle_todo_complete' task.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium
+                                       rounded-md shadow-sm
+                                       {% if task.is_completed %}
+                                           text-yellow-800 bg-yellow-100 hover:bg-yellow-200
+                                       {% else %}
+                                           text-green-800 bg-green-100 hover:bg-green-200
+                                       {% endif %}">
+                            {% if task.is_completed %}Mark as Pending{% else %}Mark as Completed{% endif %}
+                        </button>
+                    </form>
+
+                    <form action="{% url 'delete_todo' task.id %}" method="post"
+                          onsubmit="return confirm('Delete this todo?');">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium
+                                       rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none
+                                       focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
